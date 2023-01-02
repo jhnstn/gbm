@@ -1,0 +1,17 @@
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to create'
+        required: true
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: 'WordPress/gutenberg'
+          fetch-depth: 0
+        run: |
+          git switch -c ${{ github.event.inputs.branch }}
+          git push origin ${{ github.event.inputs.branch }}
