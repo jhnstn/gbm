@@ -8,11 +8,5 @@ jobs:
   create-branch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: 'WordPress/gutenberg'
-          fetch-depth: 0
       - run: |
-          ls
-          git switch -c ${{ github.event.inputs.branch }}
-          git push origin ${{ github.event.inputs.branch }}
+          gh pr list --json "headRefName,statusCheckRollup"  --repo "wordpress/gutenberg" --search "is:open is:pr 'Mobile Release'in:title"
