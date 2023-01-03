@@ -1,12 +1,10 @@
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'The branch to create'
-        required: true
 jobs:
   create-branch:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - run: |
           gh pr list --json "headRefName,statusCheckRollup"  --repo "wordpress/gutenberg" --search "is:open is:pr 'Mobile Release'in:title"
