@@ -1,0 +1,234 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id "io.gitlab.arturbosch.detekt"
+    id "androidx.navigation.safeargs.kotlin" apply false
+    id "com.android.library" apply false
+    id 'com.google.gms.google-services' apply false
+    id "org.jetbrains.kotlin.plugin.parcelize" apply false
+}
+
+ext {
+    minSdkVersion = 24
+    compileSdkVersion = 33
+    targetSdkVersion = 33
+}
+
+ext {
+    // libs
+    automatticAboutVersion = '1.1.0'
+    automatticRestVersion = '1.0.8'
+    automatticStoriesVersion = '2.1.0'
+    automatticTracksVersion = '3.0.0'
+    wordPressAztecVersion = 'v1.6.3'
+    wordPressFluxCVersion = 'trunk-3fe318a6de3463bf2444b0d798067546e9a18db0'
+    wordPressLoginVersion = '1.3.0'
+    wordPressPersistentEditTextVersion = '1.0.2'
+    wordPressUtilsVersion = '3.6.1'
+    indexosMediaForMobileVersion = '43a9026f0973a2f0a74fa813132f6a16f7499c3a'
+
+    // debug
+    stethoVersion = '1.6.0'
+
+    // main
+    androidInstallReferrerVersion = '2.2'
+    androidVolleyVersion = '1.2.1'
+    androidxAppcompatVersion = '1.6.1'
+    androidxArchCoreVersion = '2.2.0'
+    androidxComposeBomVersion = '2023.05.01'
+    androidxComposeCompilerVersion = '1.4.7'
+    androidxCardviewVersion = '1.0.0'
+    androidxConstraintlayoutVersion = '2.1.4'
+    androidxConstraintlayoutComposeVersion = '1.0.1'
+    androidxCoreVersion = '1.10.0'
+    androidxActivityVersion = '1.7.1'
+    androidxFragmentVersion = '1.5.7'
+    androidxGridlayoutVersion = '1.0.0'
+    androidxLifecycleVersion = '2.6.1'
+    androidxPercentlayoutVersion = '1.0.0'
+    androidxPreferenceVersion = '1.2.0'
+    androidxRecyclerviewVersion = '1.3.0'
+    androidxSwipeToRefreshVersion = '1.1.0'
+    androidxViewpager2Version = '1.0.0'
+    androidxWorkManagerVersion = "2.8.1"
+    apacheCommonsTextVersion = '1.10.0'
+    coilComposeVersion = '2.3.0'
+    chrisbanesPhotoviewVersion = '2.3.0'
+    eventBusVersion = '3.3.1'
+    facebookShimmerVersion = '0.5.0'
+    firebaseConfigVersion = '19.1.3'
+    firebaseMessagingVersion = '21.1.0'
+    glideVersion = '4.10.0'
+    glideVolleyVersion = '4.6.1@aar'
+    googleAutoServiceVersion = '1.0.1'
+    googleExoPlayerVersion = '2.13.3'
+    googleFlexboxlayoutVersion = '3.0.0'
+    googleGsonVersion = '2.10.1'
+    googleMaterialVersion = '1.9.0'
+    googleMLKitBarcodeScanningVersion = '17.0.0'
+    googlePlayServicesAuthVersion = '20.4.1'
+    googlePlayServicesCodeScannerVersion = '16.0.0-beta3'
+    jsoupVersion = '1.15.4'
+    kotlinxCoroutinesVersion = '1.6.4'
+    lottieVersion = '5.2.0'
+    philjayMpAndroidChartVersion = 'v3.1.0'
+    squareupKotlinPoetVersion = '1.6.0'
+    squareupOkioVersion = '3.2.0'
+    squareupRetrofitVersion = '2.9.0'
+    uCropVersion = '2.2.8'
+    zendeskVersion = '5.1.2'
+
+    // test
+    assertjVersion = '3.23.1'
+    junitVersion = '4.13.2'
+    mockitoVersion = '5.3.1'
+    mockitoKotlinVersion = '4.1.0'
+
+    // android test
+    androidxTestCoreVersion = '1.5.0'
+    androidxTestEspressoVersion = '3.4.0'
+    androidxTestExtJunitVersion = '1.1.5'
+    androidxTestUiAutomatorVersion = '2.2.0'
+    screengrabVersion = '2.1.1'
+    squareupMockWebServerVersion = '4.9.3'
+    wiremockVersion = '2.26.3'
+    wiremockHttpClientVersion = '4.3.5.1'
+
+    // other
+    androidDesugarVersion = '1.1.8'
+    wordPressLintVersion = '1.1.0'
+}
+
+allprojects {
+    apply plugin: 'checkstyle'
+    apply plugin: 'io.gitlab.arturbosch.detekt'
+
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://a8c-libs.s3.amazonaws.com/android/jcenter-mirror"
+            content {
+                includeVersion "com.android.volley", "volley", "1.1.1"
+                includeVersion "com.automattic", "rest", "1.0.8"
+                includeVersion "com.google.android", "flexbox", "2.0.1"
+                includeVersion "org.wordpress", "persistentedittext", "1.0.2"
+                includeVersion "org.wordpress", "wellsql-core", "1.6.0"
+                includeVersion "org.wordpress", "wellsql", "1.6.0"
+                // Required for detekt
+                includeVersion "org.jetbrains.kotlinx", "kotlinx-html-jvm", "0.7.2"
+                // Required for lintWordpressVanillaRelease
+                includeVersion "com.jraska", "falcon", "2.1.1"
+            }
+        }
+        flatDir {
+            dirs '../aars'
+        }
+    }
+
+    tasks.register("checkstyle", Checkstyle) {
+        source 'src'
+
+        classpath = files()
+    }
+
+    checkstyle {
+        toolVersion = '8.3'
+        configFile file("${project.rootDir}/config/checkstyle.xml")
+    }
+
+    detekt {
+        toolVersion = gradle.ext.detektVersion
+        baseline = file("${project.rootDir}/config/detekt/baseline.xml")
+        config = files("${project.rootDir}/config/detekt/detekt.yml")
+        autoCorrect = false
+        buildUponDefaultConfig = true
+        disableDefaultRuleSets = false
+        ignoreFailures = false
+        parallel = true
+        debug = false
+    }
+
+    tasks.withType(KotlinCompile).all {
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+            allWarningsAsErrors = true
+            freeCompilerArgs += [
+                    "-Xopt-in=kotlin.RequiresOptIn",
+                    "-Xjvm-default=all"
+            ]
+        }
+    }
+}
+
+// Onboarding and dev env setup tasks
+tasks.register("checkBundler", Exec) {
+    doFirst {
+        println "Check Bundler"
+    }
+
+    workingDir = './'
+    executable "sh"
+    args "-c", "if ! type 'bundle' > /dev/null; then gem install bundler; fi"
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+
+    //extension method checkBundler.output() can be used to obtain the output:
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+tasks.register("checkBundle", Exec) {
+    dependsOn tasks.named("checkBundler")
+    doFirst {
+        println "Check Bundle"
+    }
+
+    workingDir = './'
+    executable "sh"
+    args "-c", "bundle check --path=\${BUNDLE_PATH:-vendor/bundle} > /dev/null || bundle install --jobs=3 --retry=3 --path=\${BUNDLE_PATH:-vendor/bundle}"
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+
+    //extension method checkBundle.output() can be used to obtain the output:
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+tasks.register("applyCredentials", Exec) {
+    dependsOn tasks.named("checkBundle")
+    doFirst {
+        println "Apply credentials for this branch"
+    }
+
+    workingDir = './'
+    executable "sh"
+    args "-c", "FASTLANE_SKIP_UPDATE_CHECK=1 FASTLANE_ENV_PRINTER=1 bundle exec fastlane run configure_apply force:true"
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+
+    //extension method checkBundle.output() can be used to obtain the output:
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+tasks.register("configureApply") {
+    group = 'Onboarding'
+    description = 'Install dependencies for debug and production builds'
+    dependsOn applyCredentials
+    doLast {
+        println("Done")
+    }
+}
+
+dependencies {
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$gradle.ext.detektVersion"
+}
+
+apply from: './config/gradle/gradle_build_scan.gradle'
